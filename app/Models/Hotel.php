@@ -14,7 +14,9 @@ class Hotel extends Model
     protected $fillable = [
         'id_hotel',
         'name',
-        'location',
-        'rating'
+        'id_location',
+        'rating',
+        'room_quantity',
+        'price'
     ];
 }

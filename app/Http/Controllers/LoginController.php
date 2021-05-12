@@ -53,7 +53,6 @@ class LoginController extends Controller
             'phone_number' => 'required'
         ]);
 
-        $id_user = $this->IdGenerator();
         $name = $request->name;
         $email = $request->email;
         $password = hash('sha256', $request->password);
@@ -61,19 +60,17 @@ class LoginController extends Controller
         $phone_number = $request->phone_number;
         $link_photo = $request->link_photo;
 
-        $column = 
-            'id_user, 
+        $column = '
             name, 
             email, 
             password, 
             birthdate, 
             phone_number'
         ;
-
-        $values = '?, ?, ?, ?, ?, ?';
         
+        $values = '?, ?, ?, ?, ?';
+
         $data = [
-            $id_user,
             $name,
             $email,
             $password,
@@ -97,47 +94,13 @@ class LoginController extends Controller
             Redirect::to('register');
         }
         Session::put('hotel_login_status', true);
-        Session::put('hotel_id_user', $id_user);
+        // Session::put('hotel_id_user', $id_user);
         return Redirect::to('login');
     }
 
-    private function IdGenerator(){
-        $getLastData = User::orderBy('id_user', 'desc')->first();
-
-        if(!$getLastData){
-            $createNewId = 'U00001';
-            return $createNewId;
-        }
-
-        $getId = $getLastData['id_user'];
-
-        $getIdInt = substr($getId, 1);
-
-        $zeroCount = 0;
-
-        while(true){
-            if(substr($getIdInt, 0, 1) != '0'){
-                break;
-            }
-            $getIdInt = substr($getIdInt, 1);
-            $zeroCount++;
-        }
-
-        $checkLengthIdInt = strlen($getIdInt);
-        $getIdInt = $getIdInt + 1;
-        if(strlen($getIdInt) != $checkLengthIdInt){
-            $zeroCount--;
-        }
-
-        $createId = '';
-
-        while($zeroCount != 0){
-            $createId = $createId . '0';
-            $zeroCount--;
-        }
-
-        $createNewId = 'U' . $createId . (string)$getIdInt;
-
-        return $createNewId;
+    private function getId($id){
+        $findUser = User::where('id_user', $id);
+        $getId = $findUser['id_user'];
+        return $getId;
     }
 }

@@ -54,12 +54,9 @@
 							Forgot password?
 						</a> -->
 						<p> 
-							@if ($errors->has('email'))
-									{{ $errors->first('email') }}
-							@endif
-							@if ($errors->has('password'))
-									{{ $errors->first('password') }}
-							@endif
+							@foreach ($errors->all() as $error_message)
+									{{ $error_message }}
+							@endforeach
 							{{ Session::has('login_failed_message') ? Session::get('login_failed_message') : '' }}
 						</p>
 					</div>

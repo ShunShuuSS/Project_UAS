@@ -13,6 +13,6 @@ class HotelFacilities extends Model
 
     protected $fillable = [
         'id_hotel',
-        'facilities'
+        'id_facilities'
     ];
 }
