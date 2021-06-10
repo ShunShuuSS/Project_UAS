@@ -1,9 +1,7 @@
 @extends('pages/app-user')
 
 @section('content')
-<div class="m-3">
-    <a class="btn btn-success" href="{{ url('home') }}">Back</a>
-</div>
+
 <div class="p-t-100 p-b-50">
     <div class="wrapper wrapper--w900">
         <div class="card card-6">
@@ -12,7 +10,7 @@
                     @csrf
                     <input type="text" name="id_hotel" value="{{ $hotel['id_hotel'] }}" hidden>
                     <div class="form-row">
-                        <div class="name">Nama Hotel</div>
+                        <div class="n{{ ame">Nama Hotel</div> }}
                         <div class="value">
                             <input class="input--style-6" type="text" id="full_name" name=""
                                 value="{{ $hotel['name'] }}" disabled>
@@ -36,16 +34,16 @@
                     <div class="form-row">
                         <div class="name">Email</div>
                         <div class="value">
-                            <div class="input-group">
+                            <div class="input-group">{{  }}
                                 <input class="input--style-6" type="email" id="" name="email"
                                     placeholder="example@email.com" value="{{ $user['email'] }}">
                             </div>
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="name">Check-in</div>
+                        <div class="name">Check-in</div>{{  }}
                         <div class="value">
-                            <div class="input-group">
+                            <div class="input-group">{{  }}
                                 <input class="input--style-6" type="date" id="check_in" name="check_in" value="">
                             </div>
                         </div>
@@ -78,14 +76,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="text-left p-t-8 p-b-31">
-						<p> 
-							@foreach ($errors->all() as $error_message)
-									{{ $error_message }}
-							@endforeach
-							{{ Session::has('booking_failed_message') ? Session::get('booking_failed_message') : '' }}
-						</p>
-					</div>
                     <div class="card-footer">
                         <button id="" type="submit" class="btn btn--radius-2 btn--blue-2">Pesan</button>
                     </div>

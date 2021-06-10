@@ -11,7 +11,7 @@ class MainController extends Controller
     public function index(){
         // check if user logged
         if(Session::get('hotel_login_status')){
-            return view('welcome');{{  }}
+            return view('pages.login');{{  }}
         }
         // user not logged in
         return Redirect::to('login');

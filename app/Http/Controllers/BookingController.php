@@ -43,7 +43,13 @@ class BookingController extends Controller
         $totalPrice = $totalRoom * $getHotelPrice;
 
         if(!$checkIn){
-            Session::flash('');
+            Session::flash('booking_failed_message', 'Check-in cannot be null');
+            return view('pages.user.booking');
+        }
+
+        if(!$checkOut){
+            Session::flash('booking_failed_message', 'Check-out cannot be null');
+            return view('pages.user.booking');
         }
 
         $response = DB::insert(
@@ -66,7 +72,7 @@ class BookingController extends Controller
         $user = User::where('id_user', $id_user)->first();
         $bookingList = Booking::where('id_user', $id_user)->get();
         $hotel = Hotel::join('booking', 'booking.id_hotel', '=', 'hotel.id_hotel')
-            ->select('hotel.image_link', 'hotel.name')
+            ->select('hotel.image_link', 'hotel.name', 'hotel.id_hotel')
             ->get();
 
         return view('pages.user.bookinglist')
