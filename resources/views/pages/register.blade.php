@@ -35,7 +35,7 @@
     <div class="limiter">
         <div class="container-login100" style="background-image: url('{{ url('resources/login/images/bg-01.jpg') }}');">
             <div class="wrap-login100 p-l-55 p-r-55 p-t-65 p-b-54">
-                <form class="login100-form validate-form" action={{ url('submit_register') }} method="POST">
+                <form class="login100-form validate-form" action={{ url('submit_register') }} method="POST" enctype="multipart/form-data">
                     @csrf
                     <span class="login100-form-title p-b-49">
                         Register
@@ -78,6 +78,12 @@
                         <span class="focus-input100" data-symbol=""></span>
                     </div>
 
+                    <div class="wrap-input100 ">
+                        <span class="label-input100">Profile Picture</span>
+                        <input class="input100" type="file" name="link_photo">
+                        <span class="focus-input100" data-symbol=""></span>
+                    </div>
+
                     <div class="text-right p-t-8 p-b-31">
                         <!-- <a href="#">
 							Forgot password?
@@ -85,8 +91,8 @@
                         <p>
                             @if ($errors->any())
                             	@foreach ($errors->all() as $error)
-																	<li>{{ $error }}</li>
-															@endforeach
+									<li>{{ $error }}</li>
+								@endforeach
                             @endif
                             {{ Session::has('register_failed_message') ? Session::get('register_failed_message') : '' }}
                         </p>

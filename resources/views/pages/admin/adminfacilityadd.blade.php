@@ -37,21 +37,16 @@
             @endfor
 
             <?php $index = 0; ?>
-            @for ($i = 0, $x = 0; $i < count($facilities); $i++)
-                @if ($x == count($arrayFacility))
-                    @break
+            <?php $check = true; $x = 0 ?>
+            @for ($i = 0; $i < count($facilities); $i++)
+                @if ($check || $x != count($arrayFacility))
+                    
                 @endif
-
-                @if ($arrayFacility[$x] == $facilities[$i]->id_facility)
-                    <input type="checkbox" class="" name="facilities{{ $index }}"
-                    placeholder="Pick hotel facility" value="{{ $facilities[$i]->id_facility }}"
-                    <?php echo 'checked="checked"'; ?>> {{ $facilities[$i]->name }} <br>
-                    <?php $x++; ?>
-                @else
-                    <input type="checkbox" class="" name="facilities{{ $index }}"
-                    placeholder="Pick hotel facility" value="{{ $facilities[$i]->id_facility }}"> {{ $facilities[$i]->name }} <br>
-                @endif
+                <input type="checkbox" class="" name="facility{{ $index++ }}" placeholder="Pick hotel facility" value="{{ $facilities[$i]->id_facility }}"
+                <?php  ?>> {{ $facilities[$i]->name }} <br>
+                {{ $facilities[$i]->id_facility }}
             @endfor
+            
             <input type="hidden" name="count_facility" value="{{ count($facilities) }}">
         </div>
 

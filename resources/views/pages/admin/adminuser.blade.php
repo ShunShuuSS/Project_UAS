@@ -9,8 +9,9 @@
         $('#usertable').DataTable();
     });
 </script>
-<a type="button" href="{{ url('admin/users/add_view') }}" class="btn btn-warning">Add User</a>
-{{-- <a type="button" href="{{ url('admin/hotels/add_view') }}" class="btn btn-warning">User Page</a> --}}
+<div class="container-fluid mb-1">
+    <a type="button" href="{{ url('admin/users/add_view') }}" class="btn btn-warning">Add User</a>
+</div>
 
 <div class="container-fluid">
     <table id="usertable" class="table table-striped table-bordered" style="width:100%">
@@ -19,7 +20,6 @@
                 <th>ID User</th>
                 <th>Full Name</th>
                 <th>Email</th>
-                <th>Password</th>
                 <th>Birthdate</th>
                 <th>Phone Number</th>
                 <th>Link Photo</th>
@@ -33,7 +33,6 @@
                 <td>{{ $user['id_user'] }}</td>
                 <td>{{ $user['name'] }}</td>
                 <td>{{ $user['email'] }}</td>
-                <td>{{ $user['password'] }}</td>
                 <td>{{ $user['birthdate'] }}</td>
                 <td>{{ $user['phone_number'] }}</td>
                 <td>{{ $user['link_photo'] }}</td>
@@ -49,7 +48,6 @@
                 <th>ID User</th>
                 <th>Full Name</th>
                 <th>Email</th>
-                <th>Password</th>
                 <th>Birthdate</th>
                 <th>Phone Number</th>
                 <th>Link Photo</th>

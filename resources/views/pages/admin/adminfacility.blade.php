@@ -27,7 +27,7 @@
                 <td>{{ $facility['id_hotel'] }}</td>
                 <td>{{ $facility['id_facility'] }}</td>
                 <td>
-                    <a href="">Delete</a>
+                    <a href="{{ url('admin/hotels/facility/delete/'.$facility['id_hotel'].'/'.$facility['id_facility']) }}">Delete</a>
                 </td>
             </tr>
             @endforeach

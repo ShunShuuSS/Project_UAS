@@ -10,7 +10,9 @@
         $('#hoteltable').DataTable();
     });
 </script>
-<a type="button" href="{{ url('admin/hotels/add_view') }}" class="btn btn-warning">Create Hotel</a>
+<div class="container-fluid mb-1">
+    <a type="button" href="{{ url('admin/hotels/add_view') }}" class="btn btn-warning">Create Hotel</a>
+</div>
 
 <div class="container-fluid">
     <table id="hoteltable" class="table table-striped table-bordered" style="width:100%">
@@ -26,7 +28,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($hotels as $hotel)
+            @foreach( $hotels as $hotel)
             <tr>
                 <td>{{ $hotel['id_hotel'] }}</td>
                 <td>{{ $hotel['name'] }}</td>

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Facilitiy;
 use App\Models\Hotel;
 use App\Models\HotelFacilities;
 use App\Models\HotelRoom;
+use App\Models\Location;
 use App\Models\RoomType;
 use App\Models\User;
 use Exception;
@@ -17,22 +19,39 @@ use function PHPSTORM_META\type;
 
 class AdminController extends Controller
 {
+    private function cek_login(){
+        if(!Session::has('hotel_id_user')){
+            Redirect::to('login');
+        }
+    }
     // HOTEL
     public function hotel_list()
     {
+        $this->cek_login();
         return view('pages.admin.adminhome')
         ->with('hotels', Hotel::all());
     }
 
     public function hotel_edit_view($id)
     {
-        $response = Hotel::where('id_hotel', $id)->first();
+        $this->cek_login();
+        $edithotel = Hotel::where('id_hotel', $id)->first();
+        $location = Location::join('hotel', 'hotel.id_location', '=', 'location.id_location')
+            ->where('hotel.id_hotel', $id)
+            ->select('location.id_location')
+            ->first();
+        $locations = Location::all();
         return view('pages.admin.adminedithotel')
-        ->with('edithotel', $response);
+            ->with([
+                'edithotel' => $edithotel,
+                'locations' => $locations,
+                'hotel_location' => $location
+            ]);
     }
 
     public function hotel_add_view()
     {
+        $this->cek_login();
         $facilities = DB::table('facilities')->get();
         $locations = DB::table('location')->get();
         return view('pages.admin.adminadd')
@@ -43,6 +62,7 @@ class AdminController extends Controller
     }
 
     public function hotel_add(Request $request){
+        $this->cek_login();
         $request->validate([
             'name' => 'required',
             'id_location' => 'required',
@@ -50,31 +70,28 @@ class AdminController extends Controller
             'price' => 'required'
         ]);
 
-        // $count = 0;
-        // $arrayFacilities[$count] = [];
-        // for($i = 0; $i < $request->count_facility; $i++){
-        //     $arrayFacilities[$count] = $request->input("facility$i");
-        //     $count++;
-        // }
-        // return ;
-
-        // $count = 0;
-        // $arrayFacilities[$count] = [];
-        // for($i = 0; $i < $request->count_facility; $i++){
-            
-        //     $arrayFacilities[$count] = $request->count_facility;
-            
-        //     $count++;
-            
-        // }
-        // echo $arrayFacilities[0];
-        // return $count;
-
         $hotelId = $this->IdGeneratorHotel();
         $name = $request->name;
         $locationId = $request->id_location;
         $roomQuantity = $request->room_quantity;
         $price = $request->price;
+        $description = $request->description;
+        $rating = $request->rating;
+        $hotelPic = $request->file('image_link');
+        
+        // Upload Imgur
+        $file_path = $hotelPic->getPathName();
+        $client = new \GuzzleHttp\Client();
+        $response = $client->request('POST', 'https://api.imgur.com/3/image', [
+            'headers' => [
+                    'authorization' => 'Client-ID ' . '00ac96cfc377c5a',
+                    'content-type' => 'application/x-www-form-urlencoded',
+                ],
+            'form_params' => [
+                    'image' => base64_encode(file_get_contents($request->file('image_link')->path($file_path)))
+                ],
+            ]);
+        $url = data_get(response()->json(json_decode(($response->getBody()->getContents())))->getData(), 'data.link');
 
         $count = $request->count_facility;
         $arrayFacility[$count] = [];
@@ -82,12 +99,47 @@ class AdminController extends Controller
             $arrayFacility[$i] = $request->input("facility$i");
         }
 
-        $response = DB::insert(
-            'insert into hotel (id_hotel, name, id_location, room_quantity, price)
-            values (?, ?, ?, ?, ?)',
-            [$hotelId, $name, $locationId, $roomQuantity, $price]
-        );
+        $column = '
+            id_hotel,
+            name,
+            id_location,
+            room_quantity,
+            price'
+        ;
+
+        $values = '?, ?, ?, ?, ?';
+
+        $data = [
+            $hotelId,
+            $name,
+            $locationId,
+            $roomQuantity,
+            $price
+        ];
+
+        if($rating){
+            $column .= ', rating';
+            $values .= ', ?';
+            array_push($data, $rating);
+        }
+
+        if($hotelPic){
+            $column .= ', image_link';
+            $values .= ', ?';
+            array_push($data, $url);
+        }
         
+        if($description){
+            $column .= ', description';
+            $values .= ', ?';
+            array_push($data, $description);
+        }
+
+        $response = DB::insert(
+            "insert into hotel ($column)
+            values ($values)",
+            $data
+        );
 
         DB::beginTransaction();
         try{
@@ -110,6 +162,7 @@ class AdminController extends Controller
 
     public function hotel_edit(Request $request, $id)
     {
+        $this->cek_login();
         $request->validate([
             'name' => 'required',
             'id_location' => 'required',
@@ -121,15 +174,63 @@ class AdminController extends Controller
         $locationId = $request->id_location;
         $roomQuantity = $request->room_quantity;
         $price = $request->price;
+        $description = $request->description;
+        $rating = $request->rating;
+        $hotelPic = $request->file('image_link');
+        
+        // Upload Imgur
+        $file_path = $hotelPic->getPathName();
+        $client = new \GuzzleHttp\Client();
+        $response = $client->request('POST', 'https://api.imgur.com/3/image', [
+            'headers' => [
+                    'authorization' => 'Client-ID ' . '00ac96cfc377c5a',
+                    'content-type' => 'application/x-www-form-urlencoded',
+                ],
+            'form_params' => [
+                    'image' => base64_encode(file_get_contents($request->file('image_link')->path($file_path)))
+                ],
+            ]);
+        $url = data_get(response()->json(json_decode(($response->getBody()->getContents())))->getData(), 'data.link');
 
-         $response = DB::table('hotel')
-            ->where('id_hotel', $id)
-            ->update([
-                'name' => $name,
-                'id_location' => $locationId,
-                'room_quantity' => $roomQuantity,
-                'price' => $price
-            ]
+        $count = $request->count_facility;
+        $arrayFacility[$count] = [];
+        for($i = 0; $i < $count; $i++){
+            $arrayFacility[$i] = $request->input("facility$i");
+        }
+
+        $column = '
+            name = ?,
+            id_location = ?,
+            room_quantity = ?,
+            price = ?'
+        ;
+
+        $data = [
+            $name,
+            $locationId,
+            $roomQuantity,
+            $price
+        ];
+
+        if($rating){
+            $column .= ', rating = ?';
+            array_push($data, $rating);
+        }
+
+        // if($hotelPic){
+        //     $column .= ', image_link = ?';
+        //     array_push($data, $url);
+        // }
+        
+        if($description){
+            $column .= ', description = ?';
+            array_push($data, $description);
+        }
+
+        $response = DB::update(
+            "update hotel
+            set $column
+            where id_hotel = ?", [...$data, $id]
         );
 
         if(!$response){
@@ -141,6 +242,7 @@ class AdminController extends Controller
     }
 
     public function hotel_delete($id){
+        $this->cek_login();
         $response = DB::table('hotel_facilities')->where('id_hotel', $id)->delete();
 
         $response = DB::table('hotel')->where('id_hotel', $id)->delete();
@@ -156,6 +258,7 @@ class AdminController extends Controller
 
     public function facility_view($id)
     {
+        $this->cek_login();
         $hotelFacilities = HotelFacilities::where('id_hotel', $id)->get();
         return view('pages.admin.adminfacility')
         ->with([
@@ -166,6 +269,7 @@ class AdminController extends Controller
 
     // add facility from add hotel
     public function facility_add_view($id){
+        $this->cek_login();
         $facilities = DB::table('facilities')->get();
         $hotelFacilities = HotelFacilities::where('id_hotel', $id)->get();
         return view('pages.admin.adminfacilityadd')
@@ -173,6 +277,15 @@ class AdminController extends Controller
             'editfacilities' => $hotelFacilities,
             'facilities' => $facilities
         ]);
+    }
+
+    public function facility_delete($id_hotel, $id_facility){
+        $this->cek_login();
+        DB::table('hotel_facilities')->where([
+            'id_hotel' => $id_hotel,
+            'id_facility' => $id_facility
+        ])->delete();
+        return Redirect::to("admin/hotels/facility/$id_hotel");
     }
 
     // public function DeleteFacility($id_hotel, $id_facility){
@@ -188,11 +301,13 @@ class AdminController extends Controller
     // USER
 
     public function user_list(){
+        $this->cek_login();
         return view('pages.admin.adminuser')
         ->with('users', User::all());
     }
 
     public function user_add_view(){
+        $this->cek_login();
         $user = DB::table('user')->get();
         $role = DB::table('role')->get();
         return view('pages.admin.adminuseradd')
@@ -203,6 +318,7 @@ class AdminController extends Controller
     }
 
     public function user_add(Request $request){
+        $this->cek_login();
         $request->validate([
             'name' => 'required',
             'email' => ['required', 'email'],
@@ -236,6 +352,28 @@ class AdminController extends Controller
             $birthdate,
             $phone_number
         ];
+
+        if($request->file('link_photo')){
+            $link_photo = $request->file('link_photo');
+            $file_path = $link_photo->getPathName();
+            $client = new \GuzzleHttp\Client();
+            $response = $client->request('POST', 'https://api.imgur.com/3/image', [
+                'headers' => [
+                        'authorization' => 'Client-ID ' . '00ac96cfc377c5a',
+                        'content-type' => 'application/x-www-form-urlencoded',
+                    ],
+                'form_params' => [
+                        'image' => base64_encode(file_get_contents($request->file('link_photo')->path($file_path)))
+                    ],
+                ]);
+            $url = data_get(response()->json(json_decode(($response->getBody()->getContents())))->getData(), 'data.link');
+
+            if($link_photo){
+                $column .= ', link_photo';
+                $values .= ', ?';
+                array_push($data, $url);
+            }
+        }
         
         if($link_photo){
             $column .= ', link_photo';
@@ -264,6 +402,7 @@ class AdminController extends Controller
     }
 
     public function user_edit_view($id){
+        $this->cek_login();
         $user = User::where('id_user', $id)->first();
         $role = DB::table('role')->get();
         return view('pages.admin.adminuseredit')
@@ -274,10 +413,10 @@ class AdminController extends Controller
     }
 
     public function user_edit(Request $request, $id){
+        $this->cek_login();
         $request->validate([
             'name' => 'required',
             'email' => ['required', 'email'],
-            'password' => ['required', 'min:6'],
             'birthdate' => 'required',
             'phone_number' => 'required'
         ]);
@@ -291,10 +430,10 @@ class AdminController extends Controller
         $roleId = $request->id_role;
 
         $column = '
-            name = ?, 
-            email = ?, 
-            password = ?, 
-            birthdate = ?, 
+            name = ?,
+            email = ?,
+            password = ?,
+            birthdate = ?,
             phone_number = ?'
         ;
 
@@ -305,17 +444,39 @@ class AdminController extends Controller
             $birthdate,
             $phone_number
         ];
-        
-        if($link_photo){
-            $column .= ', link_photo = ?';
-            array_push($data, $link_photo);
+
+        if($password){
+            $column .= ', password = ?';
+            array_push($data, $password);
         }
+
 
         if($roleId){
             $column .= ', id_role = ?';
             array_push($data, $roleId);
         }
 
+        if($request->file('link_photo')){
+            $link_photo = $request->file('link_photo');
+            $file_path = $link_photo->getPathName();
+            $client = new \GuzzleHttp\Client();
+            $response = $client->request('POST', 'https://api.imgur.com/3/image', [
+                'headers' => [
+                        'authorization' => 'Client-ID ' . '00ac96cfc377c5a',
+                        'content-type' => 'application/x-www-form-urlencoded',
+                    ],
+                'form_params' => [
+                        'image' => base64_encode(file_get_contents($request->file('link_photo')->path($file_path)))
+                    ],
+                ]);
+            $url = data_get(response()->json(json_decode(($response->getBody()->getContents())))->getData(), 'data.link');
+
+            if($link_photo){
+                $column .= ', link_photo = ?';
+                array_push($data, $url);
+            }
+        }
+        
         $response = DB::update("update user
             set $column
             where id_user = ?",
@@ -332,11 +493,16 @@ class AdminController extends Controller
     }
 
     public function user_delete($id){
+        $this->cek_login();
         DB::table('user')->where('id_user', $id)->delete();
         return Redirect::to('admin/users');
     }
 
     // FUNCTION NEEDED
+
+    private function getHotelId(){
+
+    }
 
     private function IdGeneratorHotel(){
         $getLastData = Hotel::orderBy('id_hotel', 'desc')->first();

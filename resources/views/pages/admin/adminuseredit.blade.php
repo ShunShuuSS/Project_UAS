@@ -21,12 +21,13 @@
 
         <div class="mb-3">
             <label for="name" class="form-label">Email</label>
-            <input type="text" class="form-control" name="email" placeholder="Type hotel name" value="{{ $useredit['email'] }}">
+            <input type="text" name="email" value="{{ $useredit['email'] }}" hidden>
+            <input type="text" class="form-control" placeholder="Type email" value="{{ $useredit['email'] }}" disabled>
         </div>
 
         <div class="mb-3">
             <label for="name" class="form-label">Password</label>
-            <input type="text" class="form-control" name="password" placeholder="Type hotel name" value="{{ $useredit['password'] }}">
+            <input type="password" class="form-control" name="password" placeholder="***********" value="">
         </div>
 
         <div class="mb-3">
@@ -36,12 +37,12 @@
 
         <div class="mb-3">
             <label for="name" class="form-label">Phone Number</label>
-            <input type="Number" class="form-control" name="phone_number" placeholder="Type hotel name" value="{{ $useredit['phone_number'] }}">
+            <input type="Number" class="form-control" name="phone_number" placeholder="Type phonenumber" value="{{ $useredit['phone_number'] }}">
         </div>
 
         <div class="mb-3">
             <label for="name" class="form-label">Link photo</label>
-            <input type="file" class="form-control" name="link_photo" placeholder="Type hotel name" value="{{ $useredit['link_photo'] }}">
+            <input type="file" class="form-control" name="link_photo" placeholder="" value="{{ $useredit['link_photo'] }}">
         </div>
 
         <div class="mb-3">
